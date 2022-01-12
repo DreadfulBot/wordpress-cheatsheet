@@ -5,18 +5,15 @@ if [[ $# -ne 1 ]]; then
 	exit 2
 fi
 
-if [[ $1 == *"-"* ]]; then
-	echo "Sitename should not contain symbol -"
-	exit 2
-fi
+db_name=${1//-/_}
 
-mysql -uroot -proot -e "CREATE DATABASE $1 CHARACTER SET utf8 COLLATE utf8_general_ci"
+mysql -uroot -proot -e "CREATE DATABASE $db_name CHARACTER SET utf8 COLLATE utf8_general_ci"
 mkdir /var/www/$1
 cd /var/www/$1
 wp core download --allow-root
 
 # put your credentials to db in this line
-wp config create --dbhost=127.0.0.1 --dbname=$1 --dbuser=root --dbpass=root --allow-root --extra-php <<PHP
+wp config create --dbhost=127.0.0.1 --dbname=$db_name --dbuser=root --dbpass=root --allow-root --extra-php <<PHP
 
 define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
@@ -38,3 +35,4 @@ sed -e "s/\${name}*/$1/g" dev.wp.conf >> servers/dev.$1.conf
 chown riskyworks:admin servers/dev.$1.conf 
 
 nginx -t
+brew services restart nginx

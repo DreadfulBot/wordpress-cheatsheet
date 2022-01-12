@@ -5,12 +5,9 @@ if [[ $# -ne 1 ]]; then
 	exit 2
 fi
 
-if [[ $1 == *"-"* ]]; then
-	echo "Sitename should not contain symbol -"
-	exit 2
-fi
+db_name=${1//-/_}
 
-mysql -uroot -proot -e "DROP DATABASE $1"
+mysql -uroot -proot -e "DROP DATABASE $db_name"
 rm -r /var/www/$1
 
 sudo -- sh -c "sudo sed -i \"\" \"s/127.0.0.1.*dev.$1//g\" /etc/hosts"
